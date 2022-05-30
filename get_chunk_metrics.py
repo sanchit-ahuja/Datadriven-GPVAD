@@ -1,6 +1,11 @@
+"""
+python get_chunk_metrics.py --test_path /home/ubuntu/data/test/audio/ --output_path /home/ubuntu/data/test/chunk_metrics.csv
+
+"""
 from forward import get_preds
 from chunk_audio import chunk_audio
 import pandas as pd
+from docopt import docopt
 import os
 
 #suppress warnings
@@ -42,16 +47,19 @@ def main(df_test):
         except:
             print(f'Skipping FILE: {file}')
         df_ans = df_ans.append(df)
-    
+
+    df_ans = df_ans.reset_index(drop=True)
     print(df_ans.to_markdown(showindex=False))
+    return df_ans 
 
 
 if __name__ == "__main__":
-    df_test = pd.read_csv('client_specific/chola_test.csv')
-    df_test = df_test[:20]
+    args = docopt(__doc__)
+    df_test = pd.read_csv(args['--test_path'])
     main_path = '/home/sanchit/res_vad'
     df_test['path'] = df_test['path'].apply(lambda x: os.path.join(main_path, x))
-    main(df_test)
+    df_ans  = main(df_test)
+    df_ans.to_csv(args['--output_path'], index=False)
 
 
 
